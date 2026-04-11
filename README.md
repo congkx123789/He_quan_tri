@@ -2,7 +2,7 @@
 [![Database: Oracle 23ai](https://img.shields.io/badge/Database-Oracle_23ai-red)](#)
 [![AI Shell: Ollama-Llama3](https://img.shields.io/badge/AI-Ollama--Llama3-blue)](#)
 [![Data Volume: 83GB](https://img.shields.io/badge/Data-83GB--Amazon--2023-green)](#)
-[![Hardware: Ryzen 9 / RTX-4060-Ti](https://img.shields.io/badge/Hardware-Ryzen--9_/_RTX--4060--Ti-orange)](#)
+[![Hardware: Enterprise Workstation](https://img.shields.io/badge/Hardware-Enterprise--Grade-orange)](#)
 
 A high-performance, private AI system built on **Oracle Database 23ai Free Edition** and **Ollama**, designed to perform high-velocity data engineering, semantic vector analysis, and natural language querying over a massive **83.6GB Amazon Reviews 2023** dataset.
 
@@ -17,7 +17,7 @@ This project demonstrates a production-grade **Local Enterprise AI** architectur
 
 ### 1. High-Velocity Data Engineering (The "Enterprise Engine")
 - **Scale**: Successfully processed over **67,000,000 customer reviews** and millions of product specs.
-- **Safe-Mode Architecture**: Optimized for **64GB RAM** environments using a **Streaming Processor** that maintains a memory footprint of **< 1GB** even when handling 30GB+ individual files.
+- **Safe-Mode Architecture**: Optimized for high-volume environments using a **Streaming Processor** that maintains a memory footprint of **< 1GB** even when handling 30GB+ individual files.
 - **In-Stream Cleaning**: Automatic price normalization, high-performance deduplication (via hashing), and HTML scrubbing during the ingestion path.
 
 ### 2. The Hybrid Thinking Database (Oracle 23ai)
@@ -73,9 +73,9 @@ make setup-docker
 
 ## ⚙️ Hardware Specifications (Reference)
 This system is optimized for high-end local workstations:
-- **Processor**: AMD Ryzen 9 (or equivalent).
-- **GPU**: NVIDIA RTX 4060 Ti (8GB+ VRAM for Llama 3).
-- **Memory**: 64GB DDR5 (Supported via Safe-Mode Streaming).
+- **Processor**: High-performance Multicore CPU.
+- **GPU**: NVIDIA GPU with 8GB+ VRAM (Recommended for LLM acceleration).
+- **Memory**: 32GB+ RAM (Supported via Safe-Mode Streaming).
 - **Storage**: ~250GB Free SSD space target.
 
 ---

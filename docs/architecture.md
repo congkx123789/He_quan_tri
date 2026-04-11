@@ -7,7 +7,7 @@ This document details the flow of data and intelligence within the system.
 1.  **User Input (UI)**: The user interacts with an Oracle APEX dashboard or a search interface.
 2.  **Select AI (SQL Layer)**: Oracle 23ai receives a Natural Language query. It looks up the Metadata (Table names, column comments).
 3.  **Local API Call**: Oracle uses `DBMS_CLOUD_AI` to send a REST request to `http://host.docker.internal:11434`.
-4.  **Local LLM (Ollama)**: Running on the **RTX 5060 Ti**, Ollama processes the prompt and returns valid SQL code.
+4.  **Local LLM (Ollama)**: Running on the **GPU accelerator**, Ollama processes the prompt and returns valid SQL code.
 5.  **Execution**: Oracle executes the generated SQL against the locally stored datasets (up to 50GB).
 6.  **Results**: Data is returned to the UI as structured tables, JSON objects, or Semantic search matches.
 

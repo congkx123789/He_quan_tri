@@ -28,8 +28,8 @@ def generate_specs(products):
             "dimensions": f"{random.randint(10, 50)}x{random.randint(10, 50)}x{random.randint(5, 20)} cm"
         }
         if p['category'] == 'Computing':
-            spec_data['ram'] = random.choice(['16GB', '32GB', '64GB'])
-            spec_data['cpu'] = 'AMD Ryzen 9'
+            spec_data['ram'] = random.choice(['16GB', '32GB', 'Higher'])
+            spec_data['cpu'] = 'High-Performance CPU'
         specs.append({'product_id': p['product_id'], 'specs': json.dumps(spec_data)})
     return specs
 
