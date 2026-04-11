@@ -31,6 +31,13 @@ This project demonstrates a production-grade **Local Enterprise AI** architectur
   - *VN*: "Tìm cho tôi các sản phẩm điện tử dưới 200$ được đánh giá cao nhất."
   - *EN*: "Find Top-3 electronics under $200 with high durability ratings."
 
+## ☁️ Run on Google Colab (Cloud Acceleration)
+If you want to use Colab's GPU for LLM acceleration or remote data engineering:
+1. **Upload**: Upload this repository to your **Google Drive** (e.g., `/MyDrive/He_quan_tri`).
+2. **Launch**: Open **`Local_Enterprise_AI_Colab.ipynb`** in Google Colab.
+3. **Connect**: Mount Drive and run the cells to utilize T4/A100 GPUs for Llama 3 processing.
+4. **Ingest**: Processed data can be synced back to your local Oracle machine via `python/colab_bridge.py`.
+
 ---
 
 ## 🏗️ Architecture & Data Flow
