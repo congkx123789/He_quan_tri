@@ -1,0 +1,34 @@
+# Infrastructure Security: Git Ignore Configuration
+
+# 1. Credentials & Secrets (CRITICAL)
+.env
+*.token
+*.key
+*.pem
+
+# 2. Large Scale Data (80GB+)
+data/
+!data/README.md
+data/ingest/
+data/raw/
+data/electronics/
+data/home_and_kitchen/
+data/tools/
+*.jsonl
+*.parquet
+*.csv
+*.gz
+
+# 3. Cache & Logs
+.cache/
+data/.cache/
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+*.lock
+
+# 4. OS & IDE
+.DS_Store
+.vscode/
+.idea/
