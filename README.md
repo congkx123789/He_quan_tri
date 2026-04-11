@@ -13,7 +13,17 @@ A high-performance, private AI system built on **Oracle Database 23ai** and **Ol
 - **Thinking Database (Select AI)**: Natural Language to SQL bridge using **Llama 3** (local). Ask questions in Vietnamese or English and get SQL results instantly.
 - **Enterprise Security**: 100% Local execution on private hardware (Ryzen 9 / RTX 4060 Ti). No third-party API dependencies.
 
-## 🏗️ Architecture
+## 🏗️ One-Command Deployment (New Machine)
+To setup the entire 83GB system on a new machine:
+1. **Prepare Environment**: Ensure Docker and Python 3 are installed.
+2. **Setup Script**:
+   ```bash
+   chmod +x setup_enterprise_ai.sh
+   ./setup_enterprise_ai.sh
+   ```
+   *The script will automatically create a venv, download the 80GB dataset, organize folders, and start Docker.*
+
+## 🏢 Architecture
 ```mermaid
 graph TD
     A[Amazon 2023 Dataset - 80GB] --> B[Enterprise Python Engine]
