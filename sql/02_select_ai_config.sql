@@ -1,24 +1,56 @@
 -- 02_select_ai_config.sql
--- Connecting Oracle 23ai to Local Ollama-Llama 3
--- This enables Natural Language to SQL transformation for 80GB+ Analysis
+-- Configure Oracle 23ai "Select AI" to use GPU-accelerated Ollama
+-- Using Llama 3 for chat/reasoning and BGE-M3 for embeddings
 
+SET SERVEROUTPUT ON;
+
+PROMPT '🤖 Configuring Oracle 23ai AI Engine...';
+
+-- 1. Create Credential for Ollama (Ollama doesn't require auth by default, but Oracle needs a profile)
 BEGIN
-  DBMS_CLOUD_AI.CREATE_PROFILE(
-    profile_name => 'OLLAMA_LLAMA3',
-    attributes   => '{"provider": "ollama", 
-                      "host": "http://host.docker.internal:11434", 
-                      "model": "llama3", 
-                      "embedding_model": "bge-m3"}',
-    description  => 'Primary AI Profile for Local Enterprise Amazon Reviews Analysis'
-  );
+    DBMS_CLOUD.CREATE_CREDENTIAL(
+        credential_name => 'OLLAMA_CRED',
+        username        => 'ollama',
+        password        => 'ollama'
+    );
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE = -27486 OR SQLCODE = -955 THEN NULL;-- Already exists
+        ELSE RAISE;
+        END IF;
 END;
 /
 
--- Enable AI for specific schemas/tables
+-- 2. Configure AI Model Profile for BGE-M3 (Embeddings)
 BEGIN
-  DBMS_CLOUD_AI.SET_PROFILE('OLLAMA_LLAMA3');
+    DBMS_CLOUD_AI.DROP_PROFILE(profile_name => 'OLLAMA_EMBED', silent => TRUE);
+    DBMS_CLOUD_AI.CREATE_PROFILE(
+        profile_name => 'OLLAMA_EMBED',
+        attributes   => '{
+            "provider": "ollama",
+            "credential_name": "OLLAMA_CRED",
+            "base_url": "http://ollama:11434/api",
+            "model": "bge-m3",
+            "task": "embedding"
+        }'
+    );
 END;
 /
 
--- Sample AI Usage:
--- SELECT AI 'Tìm cho tôi 3 cái tai nghe bền nhất dưới 2 triệu' FROM DUAL;
+-- 3. Configure AI Model Profile for Llama 3 (Chat/Natural Language to SQL)
+BEGIN
+    DBMS_CLOUD_AI.DROP_PROFILE(profile_name => 'OLLAMA_CHAT', silent => TRUE);
+    DBMS_CLOUD_AI.CREATE_PROFILE(
+        profile_name => 'OLLAMA_CHAT',
+        attributes   => '{
+            "provider": "ollama",
+            "credential_name": "OLLAMA_CRED",
+            "base_url": "http://ollama:11434/api",
+            "model": "llama3",
+            "task": "chat"
+        }'
+    );
+END;
+/
+
+PROMPT '✅ AI Profile "OLLAMA_CHAT" and "OLLAMA_EMBED" Ready.';

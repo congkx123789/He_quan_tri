@@ -27,8 +27,17 @@ __pycache__/
 *$py.class
 *.log
 *.lock
+checkpoints/
 
-# 4. OS & IDE
+# 4. Infrastructure & Binaries
+bin/
+oracle_data/
+ollama_data/
+init_fix.ora
+
+# 5. OS & IDE & Venv
 .DS_Store
 .vscode/
 .idea/
+venv/
+.venv/

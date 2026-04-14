@@ -1,20 +1,31 @@
 -- 03_vector_setup.sql
--- Oracle AI Vector Search Configuration
+-- High-Performance Semantic Search Indexing for 145M Records
+-- Optimized for Oracle 23ai native Vector Store
 
--- 1. Create a Vector Index (In-Memory or Disk-based)
--- For high performance on 50GB data, HNSW is recommended.
-CREATE VECTOR INDEX idx_customer_reviews_vec 
-ON CUSTOMER_REVIEWS(review_vector) 
+SET SERVEROUTPUT ON;
+
+PROMPT '📦 Initializing Vector Indexing (HNSW Mode)...';
+
+-- Enable HNSW (Hierarchical Navigable Small World) Indexing
+-- This provides sub-second search throughput on massive datasets
+BEGIN
+    -- Drop existing index if it exists
+    EXECUTE IMMEDIATE 'DROP INDEX idx_review_vector_hnsw';
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE = -955 OR SQLCODE = -1418 THEN NULL; 
+        ELSE RAISE;
+        END IF;
+END;
+/
+
+-- Create the HNSW index
+-- Accuracy is balanced with search speed for enterprise RAG
+CREATE VECTOR INDEX idx_review_vector_hnsw 
+ON CUSTOMER_REVIEWS (review_vector)
 ORGANIZATION INMEMORY NEIGHBOR GRAPH
-DISTANCE METRIC COSINE;
+DISTANCE COSINE
+WITH TARGET ACCURACY 90
+TABLESPACE USERS;
 
--- 2. Procedure to generate embeddings via Ollama (Local)
--- This logic usually sits in Python or a PL/SQL wrapper calling DBMS_VECTOR_CHAIN
--- Example semantic search query:
-/*
-SELECT r.customer_name, r.review_text
-FROM CUSTOMER_REVIEWS r
-WHERE product_id = :pid
-ORDER BY VECTOR_DISTANCE(r.review_vector, :query_vector, COSINE)
-FETCH FIRST 5 ROWS ONLY;
-*/
+PROMPT '✅ HNSW Vector Index Created Successfully.';

@@ -1,39 +1,37 @@
 -- 06_ingestion_direct_load.sql
--- High-Performance Enterprise Ingestion into Oracle 23ai
--- Uses Direct Path Loading (/*+ APPEND */) for 80GB+ scalability
+-- Ultra-Fast Native Ingestion for 80GB Dataset
+-- Optimized for 32GB RAM & Parallel Processing
 
 SET SERVEROUTPUT ON;
+SET FEEDBACK ON;
+SET TIMING ON;
 
--- 1. Load Products and Specs (Relational & JSON)
--- We combine category-specific external tables into the main PRODUCTS table
-PRINT '📦 Loading Products and Specs into Oracle...';
+PROMPT '🚀 Starting Native SQL Ingestion (Turbo Mode)...';
 
-INSERT /*+ APPEND */ INTO PRODUCTS (name, category, price)
-SELECT name, category, price FROM EXT_PRODUCTS_ELECTRONICS
-UNION ALL
-SELECT name, category, price FROM EXT_PRODUCTS_HOME
-UNION ALL
-SELECT name, category, price FROM EXT_PRODUCTS_TOOLS;
-
--- Map ASIN to the generated Product IDs for the Specs table
-INSERT /*+ APPEND */ INTO PRODUCT_SPECS (product_id, specs_json)
-SELECT p.product_id, e.specs_json
-FROM PRODUCTS p
-JOIN (
-    SELECT asin, name, specs_json FROM EXT_PRODUCTS_ELECTRONICS
-    UNION ALL
-    SELECT asin, name, specs_json FROM EXT_PRODUCTS_HOME
-    UNION ALL
-    SELECT asin, name, specs_json FROM EXT_PRODUCTS_TOOLS
-) e ON p.name = e.name;
-
--- 2. Load Reviews (Unstructured)
--- Massive direct load from the combined external reviews table
-PRINT '💬 Loading Customer Reviews (Textual)...';
-
-INSERT /*+ APPEND */ INTO CUSTOMER_REVIEWS (customer_name, review_text, review_rating)
-SELECT customer_name, review_text, rating FROM EXT_REVIEWS_COMBINED;
-
+-- 1. Load Products Metadata
+-- Using APPEND hint for high-speed direct path loading
+PROMPT '📦 Ingesting Products (Full Scale)...';
+INSERT /*+ APPEND NOLOGGING PARALLEL(8) */ INTO PRODUCTS (name, category, price, asin)
+SELECT name, category, TO_NUMBER(price, '999999.99'), asin
+FROM EXT_PRODUCTS_META;
 COMMIT;
 
-PRINT '🎉 Enterprise Ingestion Complete for 80GB Dataset.';
+-- 2. Load Reviews
+PROMPT '📦 Ingesting Customer Reviews (First 100k)...';
+INSERT /*+ APPEND NOLOGGING */ INTO CUSTOMER_REVIEWS (product_id, customer_name, review_text, review_rating)
+SELECT p.product_id, e.customer_name, e.review_text, e.review_rating
+FROM EXT_REVIEWS e
+JOIN PRODUCTS p ON e.asin = p.asin
+WHERE ROWNUM <= 100000;
+COMMIT;
+
+PROMPT '✅ Proof of Life Batch Complete.';
+
+-- Show results
+SET HEAD ON;
+SELECT count(*) AS PRODUCTS_LANDED FROM PRODUCTS;
+SELECT count(*) AS REVIEWS_LANDED FROM CUSTOMER_REVIEWS;
+
+SELECT product_id, category, substr(name, 1, 50) as name 
+FROM PRODUCTS 
+WHERE ROWNUM <= 5;

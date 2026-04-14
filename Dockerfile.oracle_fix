@@ -1,0 +1,15 @@
+FROM container-registry.oracle.com/database/free:latest
+
+USER root
+# 1. Remove the problematic symlink and create a real directory
+RUN rm -f /opt/oracle/product/26ai/dbhomeFree/dbs && \
+    mkdir -p /opt/oracle/product/26ai/dbhomeFree/dbs
+
+# 2. Copy the fix directly into the real directory
+COPY init_fix.ora /opt/oracle/product/26ai/dbhomeFree/dbs/initFREE.ora
+
+# 3. Ensure correct ownership for the oracle user
+RUN chown -R oracle:oinstall /opt/oracle/product/26ai/dbhomeFree/dbs && \
+    chmod -R 755 /opt/oracle/product/26ai/dbhomeFree/dbs
+
+USER oracle

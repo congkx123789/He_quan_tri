@@ -1,43 +1,45 @@
-version: '3.8'
+volumes:
+  oracle_data_26ai:
+  ollama_data_26ai:
 
 services:
-  # 1. Oracle Database 23ai (Primary Engine)
-  oracle:
-    container_name: oracle-23ai
-    image: container-registry.oracle.com/database/free:latest
+  oracle-26ai:
+    image: gvenzl/oracle-free:latest
+    container_name: oracle-26ai
+    hostname: oracle-26ai
+    privileged: true
+    shm_size: 2g
+    restart: unless-stopped
     ports:
       - "${ORACLE_PORT:-1521}:1521"
     environment:
-      - ORACLE_PWD=${ORACLE_PWD:-OracleAdmin123!}
+      - ORACLE_PASSWORD=${ORACLE_PWD}
+      - APP_USER=${DB_USER}
+      - APP_USER_PASSWORD=${DB_PASS}
+      - ORACLE_DATABASE=${DB_SID}
+    cap_add:
+      - SYS_RESOURCE
+      - IPC_LOCK
+    ulimits:
+      memlock: -1
+      stack: 67108864
     volumes:
-      - ./data:/opt/oracle/data_in
-      - ./sql:/opt/oracle/scripts/setup
-    restart: always
+      - oracle_data_26ai:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD-SHELL", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
 
-  # 2. Ollama (AI Brain)
-  ollama:
-    container_name: ollama
+  ollama-26ai:
     image: ollama/ollama:latest
+    container_name: ollama-26ai
+    volumes:
+      - ollama_data_26ai:/root/.ollama
+    restart: unless-stopped
     ports:
-      - "11434:11434"
-    volumes:
-      - ./ollama_data:/root/.ollama
-    restart: always
-
-  # 3. Data Engineering Engine (Dual-Mode Portability B)
-  data-engine:
-    container_name: data-engine
-    build:
-      context: .
-      dockerfile: Dockerfile.engine
+      - "${OLLAMA_PORT:-11435}:11434"
     environment:
-      - HF_TOKEN=${HF_TOKEN}
-      - HF_HUB_ENABLE_HF_TRANSFER=1
-    volumes:
-      - ./data:/app/data
-    profiles:
-      - setup-mode # Only runs when explicitly requested via --profile
-
-networks:
-  default:
-    name: oracle-network
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
