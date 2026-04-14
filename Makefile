@@ -14,6 +14,12 @@ setup-docker:
 	docker-compose --profile setup-mode up --build data-engine
 	docker-compose up -d oracle ollama
 
+# Mode C: Portable Deployment (New Machine)
+deploy:
+	@echo "🌐 Launching Mode C: Portable Deployment..."
+	chmod +x deploy_new_machine.sh
+	./deploy_new_machine.sh
+
 # Utility: Clean Temporary Files
 clean:
 	@echo "🧹 Cleaning temporary lock files and caches..."
@@ -25,3 +31,10 @@ clean:
 status:
 	@du -sh data/*
 	@docker ps
+
+# Git Utility: Push all changes
+push:
+	@echo "📤 Pushing code to GitHub..."
+	git add .
+	git commit -m "update: deployment scripts and AI modernization fixes"
+	git push origin main

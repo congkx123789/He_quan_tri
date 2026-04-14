@@ -25,11 +25,14 @@ This project demonstrates a production-grade **Local Enterprise AI** architectur
 - **Direct Path Loading**: Leverages Oracle's `/*+ APPEND */` logic and External Tables to achieve "bare-metal" throughput during ingestion from CSV to Vector tables.
 - **Semantic Vector Search**: Native HNSW indexing for instant sentiment and topic discovery across millions of records.
 
-### 3. Generative AI Orientation (Select AI)
+### 3. Generative AI Orientation (Select AI & PL/SQL Engine)
 - **Select AI Integration**: Bridges Oracle's internal query engine to a local **Ollama** instance serving **Llama 3 (8B)**.
-- **Natural Language Analytics**: Allows non-technical users to query the database using standard language:
-  - *VN*: "Tìm cho tôi các sản phẩm điện tử dưới 200$ được đánh giá cao nhất."
-  - *EN*: "Find Top-3 electronics under $200 with high durability ratings."
+- **CORE_AI_PKG**: Professional PL/SQL engine for centralized semantic search and AI reasoning.
+- **JSON Relational Duality**: Exposes relational data as structure-perfect JSON documents for modern web apps.
+
+### 4. Graph & Deep Learning Integration
+- **Native Property Graph**: Links products and reviews for graph-based pattern discovery.
+- **Cancer Survival Mamba**: (Incubating) A secondary project focused on deep learning for TCGA cancer survival prediction.
 
 ## ☁️ Run on Google Colab (Cloud Acceleration)
 If you want to use Colab's GPU for LLM acceleration or remote data engineering:
@@ -74,6 +77,33 @@ make setup-venv
 The entire "Enterprise Engine" is containerized. Requires only Docker to be installed on the host.
 ```bash
 make setup-docker
+```
+
+---
+
+## 💻 New Machine Setup (3-Step Deploy)
+
+To run this entire stack on a new machine with full AI modernization enabled:
+
+### 1. Requirements
+- **Docker** & **Docker Compose**
+- **NVIDIA Drivers** (Optional for GPU acceleration)
+- **Python 3.10+**
+
+### 2. Deployment
+Clone the repository and run the automated deployment script:
+```bash
+git clone git@github.com:congkx123789/He_quan_tri.git
+cd He_quan_tri
+chmod +x deploy_new_machine.sh
+./deploy_new_machine.sh
+```
+
+### 3. Verification
+Once complete, you can test the AI search via SQL:
+```sql
+-- Query the JSON Duality View
+SELECT data FROM PRODUCT_DETAILS_DV FETCH FIRST 1 ROWS ONLY;
 ```
 
 ---
