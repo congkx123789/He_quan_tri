@@ -20,19 +20,24 @@ CATEGORIES = [
 
 DATA_DIR = os.path.join(os.getcwd(), 'data')
 
-def download_enterprise_80gb():
-    print(f"🚀 [Enterprise] Initiating 80GB Target Acquisition...")
+def download_enterprise_80gb(sample_mode=False):
+    mode_str = "[SAMPLE MODE]" if sample_mode else "[FULL ENTERPRISE]"
+    print(f"🚀 {mode_str} Initiating Data Acquisition...")
     os.makedirs(DATA_DIR, exist_ok=True)
     
     # 1. Download Electronics Shards (Parquet)
-    for i in range(10):
+    # Full: 10 shards, Sample: 1 shard
+    shard_count = 1 if sample_mode else 10
+    for i in range(shard_count):
         shard = f"raw_meta_Electronics/full-{str(i).zfill(5)}-of-00010.parquet"
         print(f"📥 Metadata Shard: {shard}")
         hf_hub_download(repo_id=REPO_ID, filename=shard, repo_type="dataset", token=TOKEN, local_dir=DATA_DIR)
 
     # 2. Download Full Reviews (JSONL)
-    # Warning: These are large files. hf_transfer makes this much faster than standard downloads.
+    # Full: All categories, Sample: Just one category (Electronics)
     targets = [
+        "raw/review_categories/Electronics.jsonl"
+    ] if sample_mode else [
         "raw/meta_categories/meta_Home_and_Kitchen.jsonl",
         "raw/meta_categories/meta_Tools_and_Home_Improvement.jsonl",
         "raw/review_categories/Electronics.jsonl",
@@ -41,7 +46,7 @@ def download_enterprise_80gb():
     ]
     
     for target in targets:
-        print(f"📥 Full Review File: {target}...")
+        print(f"📥 Review File: {target}...")
         try:
             hf_hub_download(
                 repo_id=REPO_ID, 
@@ -55,7 +60,9 @@ def download_enterprise_80gb():
             print(f"⚠️ Failed to pull {target}: {e}")
 
 if __name__ == "__main__":
+    import sys
+    is_sample = "--sample" in sys.argv
     if not TOKEN:
         print("⚠️ HF_TOKEN not found in .env.")
     else:
-        download_enterprise_80gb()
+        download_enterprise_80gb(sample_mode=is_sample)

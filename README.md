@@ -108,6 +108,34 @@ SELECT data FROM PRODUCT_DETAILS_DV FETCH FIRST 1 ROWS ONLY;
 
 ---
 
+## 🚨 Public Machine Security Guide (Zero-Trace)
+
+If you are running this project on a machine that is **not yours** or is **public**, follow these steps to ensure total privacy:
+
+### 1. Silent Deployment
+When running `./deploy_new_machine.sh`, your Hugging Face Token and Database Password will be **hidden from the screen** during input. 
+
+### 2. Ephemeral Session
+While working, your credentials are stored only in `.env` (which is git-ignored).
+
+### 3. Total Cleanup (Wipe Everything)
+Before leaving the machine, run:
+```bash
+make purge
+```
+**This will:**
+- Stop all AI services.
+- **Delete the Database Vectors** (Docker volumes).
+- **Delete your Tokens** (`.env`).
+- **Clear Terminal History** (preventing anyone from seeing your previous commands).
+
+For a faster cleanup that only removes keys but keeps the data:
+```bash
+make logout
+```
+
+---
+
 ## ⚙️ Hardware Specifications (Reference)
 This system is optimized for high-end local workstations:
 - **Processor**: High-performance Multicore CPU.

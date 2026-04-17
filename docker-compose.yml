@@ -25,6 +25,7 @@ services:
       stack: 67108864
     volumes:
       - oracle_data_26ai:/opt/oracle/oradata
+      - ./sql/dumps:/opt/oracle/admin/FREE/dpdump
     healthcheck:
       test: ["CMD-SHELL", "healthcheck.sh"]
       interval: 30s

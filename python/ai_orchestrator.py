@@ -17,6 +17,16 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 def get_connection():
     return oracledb.connect(user=DB_USER, password=DB_PASS, dsn=DB_DSN)
 
+def check_db_space(conn):
+    """Monitor user data size to prevent ORA-12954"""
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT SUM(bytes)/1024/1024 FROM user_segments")
+        res = cursor.fetchone()[0]
+        return res if res else 0
+    except:
+        return 0 # Fallback if query fails
+
 def process_vectors():
     print(f"🧠 AI Orchestrator v45 (Consistent Rhythm Mode)")
     print(f"📡 Connecting to {DB_DSN} as {DB_USER}")
@@ -40,17 +50,26 @@ def process_vectors():
         model = SentenceTransformer(MODEL_NAME, device="cuda", model_kwargs={"torch_dtype": torch.float16})
 
     total_done = 0
-    # CONSISTENT RHYTHM PARAMETERS
-    BUFFER_SIZE = 5000          # Large buffer from DB
-    INTERNAL_BATCH_SIZE = 128   # Uniform chunks for GPU
+    # DEEP UNIFORMITY PARAMETERS (Blackwell Optimized - Safe Mode)
+    BUFFER_SIZE = 25000         # Large buffer for maximum uniformity
+    INTERNAL_BATCH_SIZE = 64    # Reduced batch for safer VRAM usage
+    SAFETY_LIMIT_MB = 11000     # Leave 1GB spare (Limit is 12GB)
 
     while True:
         try:
             conn   = get_connection()
+            
+            # Check Safety Limit
+            current_size = check_db_space(conn)
+            if current_size > SAFETY_LIMIT_MB:
+                print(f"🚨 SAFETY STOP: Database size ({current_size:.1f}MB) reached limit!")
+                conn.close()
+                break
+
             cursor = conn.cursor()
 
-            # Step 1: Fetch Large Buffer (No sorting in SQL to save DB CPU)
-            print(f"🎬 Filling Sort Buffer ({BUFFER_SIZE} items)...")
+            # Step 1: Fetch Large Buffer (Using Uppercase for Oracle standard)
+            print(f"🎬 Filling Sort Buffer ({BUFFER_SIZE} items)...", flush=True)
             cursor.execute("""
                 SELECT REVIEW_ID, REVIEW_TEXT
                 FROM   CUSTOMER_REVIEWS
@@ -61,18 +80,17 @@ def process_vectors():
             
             rows = cursor.fetchall()
             if not rows:
-                print("💤 No more data. Waiting (10s)...")
+                print("💤 No more data. Waiting (10s)...", flush=True)
                 conn.close()
                 time.sleep(10)
                 continue
 
-            # Step 2: Local Sort by Length (Crucial for consistent GPU speed)
-            # Sort the entire buffer by the length of the review text
+            # Step 2: Local Sort by Length
             sorted_rows = sorted(rows, key=lambda x: len(str(x[1])))
             
-            print(f"🎼 Buffer Full. Processing in uniform batches...")
+            print(f"🎼 Buffer Full. Processing in uniform batches...", flush=True)
             
-            # Step 3: Process the sorted buffer in uniform mini-batches
+            # Step 3: Process the sorted buffer
             for i in range(0, len(sorted_rows), INTERNAL_BATCH_SIZE):
                 chunk = sorted_rows[i : i + INTERNAL_BATCH_SIZE]
                 rids  = [r[0] for r in chunk]
@@ -86,6 +104,7 @@ def process_vectors():
                 for rid, emb in zip(rids, embeddings):
                     update_data.append([str(emb.tolist()), rid])
 
+                # Use explicit Uppercase for columns to avoid any ORA-00904
                 cursor.executemany(
                     "UPDATE CUSTOMER_REVIEWS SET VECTOR_CONTENT = TO_VECTOR(:1) WHERE REVIEW_ID = :2",
                     update_data

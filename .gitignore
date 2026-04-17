@@ -41,3 +41,9 @@ init_fix.ora
 .idea/
 venv/
 .venv/
+.monitor_venv/
+sql/dumps/
+*.sql
+!sql/01_schema.sql
+*.txt
+hf_readme.md
